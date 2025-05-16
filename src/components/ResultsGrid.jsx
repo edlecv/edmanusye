@@ -23,6 +23,16 @@ const ResultsGrid = () => {
     return "border-gray-300 dark:border-gray-600";
   };
 
+  const strategyDescriptions = {
+    "raw": "Raw Strategy: Bet size remains constant regardless of wins or losses.",
+    "martingale": "Martingale: Double bet size after each loss, reset to base bet after a win. Aims to recover losses quickly but can lead to rapid increases in bet size.",
+    "anti_martingale": "Anti-Martingale (Paroli): Double bet size after each win (up to a limit, often 3 wins), reset to base bet after a loss or reaching the win streak limit. Aims to capitalize on winning streaks.",
+    "linear": "Linear Progression: Increase bet size by a fixed amount (base bet) after a loss, decrease by a fixed amount after a win (or reset to base). Gentler than Martingale.",
+    "anti_linear": "Anti-Linear Progression: Increase bet size by a fixed amount after a win, decrease by a fixed amount after a loss (or reset to base). Aims to press wins more gradually.",
+    "smart_double": "Smart Double (D'Alembert variant): Increase bet size by one unit after a loss, decrease by one unit after a win. Bet size cannot go below one unit.",
+    "anti_smart_double": "Anti-Smart Double (Reverse D'Alembert): Decrease bet size by one unit after a loss (to a minimum of one unit), increase by one unit after a win."
+  };
+
   return (
     <Card className="mt-6 w-full max-w-7xl mx-auto shadow-xl">
       <CardHeader className="pb-4">
@@ -49,6 +59,13 @@ const ResultsGrid = () => {
                 </ul>
             </li>
             <li><strong className="text-indigo-600 dark:text-indigo-400">⚙️ Simulation Parameters:</strong> Results based on: Initial Balance = 1000, Rounds = 1000, Base Bet = 10, Max Bet = 100% of balance (up to 1000), L_cd/W_cd = 1.</li>
+          </ul>
+
+          <h4 className="font-semibold text-lg mt-6 mb-2 text-indigo-700 dark:text-indigo-300">Strategy Descriptions:</h4>
+          <ul className="list-none space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            {Object.entries(strategyDescriptions).map(([key, value]) => (
+              <li key={key}><strong className="font-medium text-gray-700 dark:text-gray-300">{formatStrategyName(key)}:</strong> {value}</li>
+            ))}
           </ul>
         </div>
 
