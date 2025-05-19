@@ -12,7 +12,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "scripts": {
-    "start": "echo \"No dev server configured, use build and serve static files\" && exit 1",
+    "start": "react-scripts start",
     "build": "npm install -g react-scripts && react-scripts build",
     "postbuild": "tailwindcss -i ./src/index.css -o ./build/static/css/tailwind.css --minify"
   },
