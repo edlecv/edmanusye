@@ -1,8 +1,32 @@
-import React from 'react';
-import gridData from '../data/all_strategies_grid.json'; 
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
+import { ChevronDown, ChevronUp, Info } from "lucide-react";
 
 const ResultsGrid = () => {
+  const [gridData, setGridData] = useState({ win_rates: [], risk_ratios: [], grid: {} });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showGridLogic, setShowGridLogic] = useState(false);
+  
+  useEffect(() => {
+    fetch('/data/all_strategies_grid.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setGridData(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error loading grid data:', error);
+        setError(error.message);
+        setLoading(false);
+      });
+  }, []);
+  
   const { win_rates, risk_ratios, grid } = gridData;
 
   const formatStrategyName = (name) => {
@@ -33,6 +57,37 @@ const ResultsGrid = () => {
     "anti_smart_double": "Anti-Smart Double (Reverse D'Alembert): Decrease bet size by one unit after a loss (to a minimum of one unit), increase by one unit after a win."
   };
 
+  if (loading) {
+    return (
+      <Card className="mt-6 w-full max-w-7xl mx-auto shadow-xl">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">Strategic Bet Sizing Analyzer</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center items-center h-40">
+            <p className="text-lg text-gray-600 dark:text-gray-300">Loading grid data...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="mt-6 w-full max-w-7xl mx-auto shadow-xl">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">Strategic Bet Sizing Analyzer</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-red-600 dark:text-red-300">Error loading grid data: {error}</p>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">Please try refreshing the page.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="mt-6 w-full max-w-7xl mx-auto shadow-xl">
       <CardHeader className="pb-4">
@@ -42,6 +97,62 @@ const ResultsGrid = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Interactive Grid Logic Info Box */}
+        <div className="mb-6">
+          <button 
+            onClick={() => setShowGridLogic(!showGridLogic)}
+            className="w-full flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors duration-200"
+          >
+            <div className="flex items-center">
+              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
+              <h3 className="font-semibold text-lg text-blue-700 dark:text-blue-300">How the Grid Analysis Works</h3>
+            </div>
+            <span className="text-blue-600 dark:text-blue-400">
+              {showGridLogic ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </span>
+          </button>
+          
+          {showGridLogic && (
+            <div className="mt-2 p-5 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-800 shadow-lg animate-fadeIn">
+              <div className="prose dark:prose-invert max-w-none">
+                <h4 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Simulation Methodology:</h4>
+                <p className="text-gray-700 dark:text-gray-300">
+                  Each cell in this grid represents the results of extensive Monte Carlo simulations. 
+                  For every Win Rate and Risk Ratio combination, each strategy variant is evaluated through 
+                  5,000 independent simulations of 1,000 potential trades each.
+                </p>
+                
+                <h4 className="text-xl font-bold text-gray-800 dark:text-gray-100 mt-5 mb-3">Independent Evaluation:</h4>
+                <p className="text-gray-700 dark:text-gray-300">
+                  Each strategy (Raw, Martingale, Anti-Martingale, etc.) is tested on its own set of random 
+                  simulations rather than the same exact sequence of wins/losses. This approach ensures 
+                  statistical robustness and prevents bias from specific sequences that might artificially 
+                  favor certain strategies.
+                </p>
+                
+                <h4 className="text-xl font-bold text-gray-800 dark:text-gray-100 mt-5 mb-3">Performance Metrics:</h4>
+                <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                  <li><strong>Expected Profit:</strong> Average final balance minus initial balance</li>
+                  <li><strong>Expected Maximum Drawdown (EMDD):</strong> Average of the worst drawdowns across all simulations</li>
+                  <li><strong>Calmar Ratio (P/EMDD):</strong> Expected Profit divided by EMDD - higher is better</li>
+                  <li><strong>Probability of Ruin:</strong> Percentage of simulations where the balance reached zero</li>
+                </ul>
+                
+                <h4 className="text-xl font-bold text-gray-800 dark:text-gray-100 mt-5 mb-3">Strategy Ranking:</h4>
+                <p className="text-gray-700 dark:text-gray-300">
+                  Strategies are ranked first by minimizing ruin probability (1% then 5%), then by maximizing 
+                  the Calmar Ratio. This prioritizes capital preservation while seeking the best risk-adjusted returns.
+                </p>
+                
+                <div className="mt-5 p-3 bg-gray-50 dark:bg-gray-700/50 rounded border border-gray-200 dark:border-gray-600 italic text-gray-600 dark:text-gray-400">
+                  <strong>Note:</strong> This approach of using independent simulations for each strategy is standard in financial 
+                  analysis and ensures that the results represent the true expected performance of each strategy 
+                  over a large number of trades.
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/50 dark:via-indigo-900/50 dark:to-purple-900/50 rounded-xl shadow-lg">
           <h3 className="font-semibold text-xl mb-3 text-indigo-700 dark:text-indigo-300">Understanding the Grid: Key Points</h3>
           <ul className="list-none space-y-3 text-gray-700 dark:text-gray-300">
