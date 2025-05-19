@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import StrategyAnalyzer from './components/StrategyAnalyzer';
 import ResultsGrid from './components/ResultsGrid';
+import StrategyResults from './components/StrategyResults';
 import './index.css';
 
 // Placeholder for Simulator Page
@@ -22,6 +23,13 @@ const GridPage = () => (
   </>
 );
 
+// Results Analysis Page
+const ResultsPage = () => (
+  <>
+    <StrategyResults />
+  </>
+);
+
 function App() {
   return (
     <div className="container mx-auto p-4 bg-background text-foreground min-h-screen flex flex-col">
@@ -33,6 +41,9 @@ function App() {
           <li>
             <Link to="/analyzer" className="text-lg font-medium text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary-lighter transition-colors">Strategy Analyzer Grid</Link>
           </li>
+          <li>
+            <Link to="/results" className="text-lg font-medium text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-primary-lighter transition-colors">Strategy Analysis Results</Link>
+          </li>
         </ul>
       </nav>
 
@@ -40,6 +51,7 @@ function App() {
         <Routes>
           <Route path="/" element={<SimulatorPage />} />
           <Route path="/analyzer" element={<GridPage />} />
+          <Route path="/results" element={<ResultsPage />} />
         </Routes>
       </main>
 
