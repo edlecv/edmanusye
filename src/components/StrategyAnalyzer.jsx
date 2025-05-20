@@ -391,7 +391,7 @@ const StrategyAnalyzer = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.values(simulationResults).sort((a,b) => (b.finalBalance / (b.maxDrawdown || 1)) - (a.finalBalance / (a.maxDrawdown || 1))).map(res => (
-              <div key={res.name} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+              <div key={res.name} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 strategy-card">
                 <div className="px-4 py-3 border-b border-gray-200" style={{ backgroundColor: `${res.color}15` }}>
                   <h4 className="text-lg font-semibold" style={{ color: res.color }}>{res.name}</h4>
                   <p className="text-sm text-gray-600 mt-1">{strategyDescriptions[res.type]}</p>

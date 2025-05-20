@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
 
 const StrategyResults = () => {
+  const [modalImage, setModalImage] = useState(null);
+
+  const openModal = (imageSrc, altText) => {
+    setModalImage({ src: imageSrc, alt: altText });
+  };
+
+  const closeModal = () => {
+    setModalImage(null);
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Analyse des Stratégies Dominantes</h1>
@@ -18,7 +28,9 @@ const StrategyResults = () => {
             <img 
               src="/images/strategy_heatmap.png" 
               alt="Heatmap des stratégies dominantes" 
-              className="max-w-full h-auto rounded-lg shadow-lg"
+              className="max-w-full h-auto rounded-lg shadow-lg result-image"
+              id="heatmap-image"
+              onClick={() => openModal("/images/strategy_heatmap.png", "Heatmap des stratégies dominantes")}
             />
           </div>
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
@@ -40,7 +52,9 @@ const StrategyResults = () => {
             <img 
               src="/images/strategy_dominance_frequency.png" 
               alt="Fréquence de dominance par stratégie" 
-              className="max-w-full h-auto rounded-lg shadow-lg"
+              className="max-w-full h-auto rounded-lg shadow-lg result-image"
+              id="frequency-image"
+              onClick={() => openModal("/images/strategy_dominance_frequency.png", "Fréquence de dominance par stratégie")}
             />
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               Les barres vertes représentent les cas optimaux (risque de ruine ≤ 1%), 
@@ -61,7 +75,9 @@ const StrategyResults = () => {
             <img 
               src="/images/strategy_safe_percentage.png" 
               alt="Pourcentage de dominance sûre par stratégie" 
-              className="max-w-full h-auto rounded-lg shadow-lg"
+              className="max-w-full h-auto rounded-lg shadow-lg result-image"
+              id="percentage-image"
+              onClick={() => openModal("/images/strategy_safe_percentage.png", "Pourcentage de dominance sûre par stratégie")}
             />
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               Une stratégie est considérée comme "sûre" lorsque sa probabilité de ruine est inférieure ou égale à 5%.
@@ -70,6 +86,20 @@ const StrategyResults = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal pour l'agrandissement des images */}
+      {modalImage && (
+        <div className="modal-overlay active" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={modalImage.src} 
+              alt={modalImage.alt} 
+              className="modal-image" 
+            />
+            <button className="modal-close" onClick={closeModal}>×</button>
+          </div>
+        </div>
+      )}
 
       <Card className="mb-8">
         <CardHeader>
