@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import "../components/animations.css";
 
 const StrategyAnalyzer = () => {
   const initialConfig = {
@@ -113,241 +114,329 @@ const StrategyAnalyzer = () => {
           }
         }
       }
-      if (strategyType !== 'raw') {
-         currentBetValue = Math.max(1, currentBetValue);
-      }
-      peakBalance = Math.max(peakBalance, balance);
-      const drawdown = peakBalance - balance;
-      maxDrawdown = Math.max(maxDrawdown, drawdown);
-      history.push({ round: i + 1, balance });
-    }
-    return { history, finalBalance: balance, maxDrawdown, wins, losses, tradesCount: wins + losses, maxBetUsed };
-  };
-
-  const runSimulations = () => {
-    const strategies = [
-      { name: 'Raw Strategy', type: 'raw', color: '#10b981' }, // Green
-      { name: 'Martingale', type: 'martingale', color: '#9333ea' }, // Purple
-      { name: 'Anti-Martingale', type: 'antiMartingale', color: '#2563eb' }, // Blue
-      { name: 'Linear', type: 'linear', color: '#eab308' }, // Yellow/Gold
-      { name: 'Anti-Linear', type: 'antiLinear', color: '#dc2626' }, // Red
-      { name: 'Smart Double', type: 'smartDouble', color: '#ff6b00' }, // Orange
-      { name: 'Anti-Smart Double', type: 'antiSmartDouble', color: '#FF1493' }, // Deep Pink
-    ];
-    let allResults = {};
-    let tempChartData = [];
-    strategies.forEach(strategy => {
-      const result = runSingleStrategy(config, strategy.type);
-      allResults[strategy.type] = { ...result, name: strategy.name, color: strategy.color, type: strategy.type };
-    });
-    const numRounds = config.rounds;
-    for (let i = 0; i < numRounds; i++) {
-      let roundData = { round: i + 1 };
-      let active = false;
-      strategies.forEach(strategy => {
-        if (allResults[strategy.type].history[i]) {
-          roundData[strategy.type] = allResults[strategy.type].history[i].balance;
-          active = true;
-        } else {
-          const lastHistoryEntry = allResults[strategy.type].history[allResults[strategy.type].history.length -1];
-          roundData[strategy.type] = lastHistoryEntry ? lastHistoryEntry.balance : null;
+      
+      if (balance > peakBalance) {
+        peakBalance = balance;
+      } else {
+        const drawdown = peakBalance - balance;
+        if (drawdown > maxDrawdown) {
+          maxDrawdown = drawdown;
         }
+      }
+      
+      // Record history point for every round to ensure continuous lines
+      history.push({
+        round: i,
+        [strategyType]: balance
       });
-      if(active) tempChartData.push(roundData);
-      else break;
     }
-    const sampleRate = Math.max(1, Math.floor(tempChartData.length / 500));
-    const sampledChartData = tempChartData.filter((_, i) => i % sampleRate === 0);
-    setChartData(sampledChartData);
-    setSimulationResults(allResults);
+    
+    return {
+      type: strategyType,
+      finalBalance: balance,
+      maxDrawdown,
+      history,
+      wins,
+      losses,
+      tradesCount: wins + losses,
+      maxBetUsed
+    };
   };
-  
-  const formatNumber = (num, digits = 2) => {
-    if (typeof num !== 'number' || isNaN(num)) return 'N/A';
-    return num.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
-  }
 
-  const yAxisTickFormatter = (value) => `$${formatNumber(value, 0)}`;
+  const runSimulation = () => {
+    const strategies = {
+      raw: {
+        type: 'raw',
+        name: 'Raw Strategy',
+        color: '#4ade80'
+      },
+      martingale: {
+        type: 'martingale',
+        name: 'Martingale',
+        color: '#8b5cf6'
+      },
+      antiMartingale: {
+        type: 'antiMartingale',
+        name: 'Anti-Martingale',
+        color: '#3b82f6'
+      },
+      linear: {
+        type: 'linear',
+        name: 'Linear',
+        color: '#f59e0b'
+      },
+      antiLinear: {
+        type: 'antiLinear',
+        name: 'Anti-Linear',
+        color: '#ef4444'
+      },
+      smartDouble: {
+        type: 'smartDouble',
+        name: 'Smart Double',
+        color: '#10b981'
+      },
+      antiSmartDouble: {
+        type: 'antiSmartDouble',
+        name: 'Anti-Smart Double',
+        color: '#ec4899'
+      }
+    };
+    
+    const results = {};
+    let allChartData = [];
+    
+    // First, run all strategies and collect results
+    for (const [key, strategy] of Object.entries(strategies)) {
+      const result = runSingleStrategy(config, strategy.type);
+      results[key] = {
+        ...strategy,
+        ...result
+      };
+    }
+    
+    // Create a complete array of rounds from 0 to max rounds
+    const maxRounds = config.rounds;
+    for (let i = 0; i < maxRounds; i++) {
+      const dataPoint = { round: i };
+      
+      // For each strategy, add its balance at this round
+      for (const [key, result] of Object.entries(results)) {
+        // Find the history point for this round
+        const historyPoint = result.history.find(p => p.round === i);
+        
+        // If found, use that value; otherwise use the last known value or 0
+        if (historyPoint) {
+          dataPoint[result.type] = historyPoint[result.type];
+        } else {
+          // Find the last known value before this round
+          const lastKnownPoint = result.history
+            .filter(p => p.round < i)
+            .sort((a, b) => b.round - a.round)[0];
+          
+          dataPoint[result.type] = lastKnownPoint ? lastKnownPoint[result.type] : 0;
+        }
+      }
+      
+      allChartData.push(dataPoint);
+    }
+    
+    // Apply sampling for performance if needed
+    if (allChartData.length > 500) {
+      const sampleRate = Math.max(1, Math.floor(allChartData.length / 500));
+      allChartData = allChartData.filter((_, i) => i % sampleRate === 0 || i === allChartData.length - 1);
+    }
+    
+    setChartData(allChartData);
+    setSimulationResults(results);
+  };
 
-  const tooltipFormatter = (value, name) => {
-    // Ensure simulationResults is not null and the specific strategy result exists
-    const strategyName = simulationResults && simulationResults[name] ? simulationResults[name].name : name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-    return [`$${formatNumber(value)}`, strategyName];
+  const resetSimulation = () => {
+    setConfig(initialConfig);
+    setSimulationResults(null);
+    setChartData([]);
+  };
+
+  const formatNumber = (num, decimals = 2) => {
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  };
+
+  // Custom tooltip component to ensure consistent order and colors
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      // Sort payload by value in descending order to match the example image
+      const sortedPayload = [...payload].sort((a, b) => b.value - a.value);
+      
+      return (
+        <div className="custom-tooltip bg-white p-3 border border-gray-200 shadow-lg rounded-md">
+          <p className="font-medium text-gray-700 mb-2">Round {label}</p>
+          {sortedPayload.map((entry, index) => {
+            // Find the strategy info to get the proper color
+            const strategyKey = entry.dataKey;
+            const strategy = simulationResults[strategyKey];
+            
+            return (
+              <p key={`item-${index}`} style={{ color: strategy.color }} className="text-sm">
+                : ${formatNumber(entry.value)}
+              </p>
+            );
+          })}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const yAxisTickFormatter = (value) => {
+    if (value >= 1000) {
+      return '$' + (value / 1000) + 'k';
+    }
+    return '$' + value;
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg mb-8">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Strategy Configuration</h2>
-      <div className="p-4 mb-6 bg-blue-50 rounded-md shadow-sm">
-        <span className="text-sm text-blue-700">Base Setup Expectancy: </span>
-        <span className={`text-sm font-bold ${expectancy > 0 ? 'text-green-600' : 'text-red-600'}`}>
-          {expectancy.toFixed(3)} per $1 bet
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 mb-6">
-        <div className="col-span-1 md:col-span-2 lg:col-span-3 mb-2">
-          <h3 className="text-md font-medium text-gray-700 border-b border-gray-200 pb-1">Raw Strategy Settings</h3>
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="rawBaseBet" className="mb-1 text-sm font-medium text-gray-600">Raw Strategy Base Bet ($)</label>
-          <Input
-            type="number"
-            name="rawBaseBet"
-            id="rawBaseBet"
-            value={config.rawBaseBet}
-            onChange={handleInputChange}
-            step={1}
-            min={1}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-
-        <div className="col-span-1 md:col-span-2 lg:col-span-3 mt-4 mb-2">
-          <h3 className="text-md font-medium text-gray-700 border-b border-gray-200 pb-1">General Settings</h3>
+    <div className="container mx-auto py-8 px-4">
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 className="text-2xl font-bold mb-6">Strategy Simulator Configuration</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Initial Balance</label>
+            <Input
+              type="number"
+              name="initialBalance"
+              value={config.initialBalance}
+              onChange={handleInputChange}
+              min="100"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Win Rate (0-1)</label>
+            <Input
+              type="number"
+              name="winRate"
+              value={config.winRate}
+              onChange={handleInputChange}
+              min="0"
+              max="1"
+              step="0.01"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Risk Ratio (Reward:Risk)</label>
+            <Input
+              type="number"
+              name="riskRatio"
+              value={config.riskRatio}
+              onChange={handleInputChange}
+              min="0.1"
+              step="0.1"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Simulation Rounds</label>
+            <Input
+              type="number"
+              name="rounds"
+              value={config.rounds}
+              onChange={handleInputChange}
+              min="100"
+              max="10000"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Base Bet Size</label>
+            <Input
+              type="number"
+              name="baseBet"
+              value={config.baseBet}
+              onChange={handleInputChange}
+              min="1"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Raw Strategy Bet Size</label>
+            <Input
+              type="number"
+              name="rawBaseBet"
+              value={config.rawBaseBet}
+              onChange={handleInputChange}
+              min="1"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Max Bet (% of Balance)</label>
+            <Input
+              type="number"
+              name="maxBetPercent"
+              value={config.maxBetPercent}
+              onChange={handleInputChange}
+              min="1"
+              max="100"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Max Bet Size</label>
+            <Input
+              type="number"
+              name="maxBetSize"
+              value={config.maxBetSize}
+              onChange={handleInputChange}
+              min="1"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Consecutive Losses for Smart Double</label>
+            <Input
+              type="number"
+              name="consecutiveLossesForDouble"
+              value={config.consecutiveLossesForDouble}
+              onChange={handleInputChange}
+              min="1"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Consecutive Wins for Anti-Smart Double</label>
+            <Input
+              type="number"
+              name="consecutiveWinsForDouble"
+              value={config.consecutiveWinsForDouble}
+              onChange={handleInputChange}
+              min="1"
+              className="w-full"
+            />
+          </div>
         </div>
         
-        <div className="flex flex-col">
-          <label htmlFor="initialBalance" className="mb-1 text-sm font-medium text-gray-600">Initial Balance ($)</label>
-          <Input
-            type="number"
-            name="initialBalance"
-            id="initialBalance"
-            value={config.initialBalance}
-            onChange={handleInputChange}
-            step={100}
-            min={100}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="winRate" className="mb-1 text-sm font-medium text-gray-600">Win Rate (0-1)</label>
-          <Input
-            type="number"
-            name="winRate"
-            id="winRate"
-            value={config.winRate}
-            onChange={handleInputChange}
-            step={0.01}
-            min={0}
-            max={1}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="riskRatio" className="mb-1 text-sm font-medium text-gray-600">Risk Ratio</label>
-          <Input
-            type="number"
-            name="riskRatio"
-            id="riskRatio"
-            value={config.riskRatio}
-            onChange={handleInputChange}
-            step={0.1}
-            min={0.1}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="rounds" className="mb-1 text-sm font-medium text-gray-600">Number of Rounds</label>
-          <Input
-            type="number"
-            name="rounds"
-            id="rounds"
-            value={config.rounds}
-            onChange={handleInputChange}
-            step={100}
-            min={100}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="baseBet" className="mb-1 text-sm font-medium text-gray-600">Base Bet ($)</label>
-          <Input
-            type="number"
-            name="baseBet"
-            id="baseBet"
-            value={config.baseBet}
-            onChange={handleInputChange}
-            step={1}
-            min={1}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="maxBetPercent" className="mb-1 text-sm font-medium text-gray-600">Max Bet (% of Balance)</label>
-          <Input
-            type="number"
-            name="maxBetPercent"
-            id="maxBetPercent"
-            value={config.maxBetPercent}
-            onChange={handleInputChange}
-            step={5}
-            min={1}
-            max={100}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="maxBetSize" className="mb-1 text-sm font-medium text-gray-600">Max Bet Size ($)</label>
-          <Input
-            type="number"
-            name="maxBetSize"
-            id="maxBetSize"
-            value={config.maxBetSize}
-            onChange={handleInputChange}
-            step={100}
-            min={1}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="consecutiveLossesForDouble" className="mb-1 text-sm font-medium text-gray-600">Consecutive Losses for Double</label>
-          <Input
-            type="number"
-            name="consecutiveLossesForDouble"
-            id="consecutiveLossesForDouble"
-            value={config.consecutiveLossesForDouble}
-            onChange={handleInputChange}
-            step={1}
-            min={1}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="consecutiveWinsForDouble" className="mb-1 text-sm font-medium text-gray-600">Consecutive Wins for Double</label>
-          <Input
-            type="number"
-            name="consecutiveWinsForDouble"
-            id="consecutiveWinsForDouble"
-            value={config.consecutiveWinsForDouble}
-            onChange={handleInputChange}
-            step={1}
-            min={1}
-            className="bg-white border-gray-300 focus:border-primary focus:ring-primary"
-          />
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+          <div className="text-sm">
+            <span className="font-medium">Expected Value per Bet: </span>
+            <span className={expectancy > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+              {expectancy > 0 ? '+' : ''}{expectancy.toFixed(4)}
+            </span>
+            <span className="ml-2 text-gray-500">
+              ({expectancy > 0 ? 'Positive EV' : 'Negative EV'})
+            </span>
+          </div>
+          
+          <div className="flex gap-4">
+            <Button onClick={runSimulation} className="bg-blue-600 hover:bg-blue-700">
+              Run Simulation
+            </Button>
+            <Button onClick={resetSimulation} variant="outline" className="border-gray-300">
+              Reset
+            </Button>
+          </div>
         </div>
       </div>
       
-      <Button onClick={runSimulations} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-md mb-8 shadow-md transition-colors">
-        Run Simulation
-      </Button>
-
       {simulationResults && (
-        <div className="mt-8">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Balance Progression Comparison</h3>
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-6">Simulation Results</h2>
           
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-6">
             {Object.values(simulationResults).map(res => (
-              <div key={`legend-${res.type}`} className="flex items-center text-xs">
-                <div className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: res.color }}></div>
+              <div key={res.name} className="px-3 py-1 rounded-full text-sm font-medium" style={{ backgroundColor: `${res.color}20`, color: res.color }}>
                 <span>{res.name}</span>
               </div>
             ))}
@@ -368,9 +457,8 @@ const StrategyAnalyzer = () => {
                   label={{ value: 'Balance ($)', angle: -90, position: 'insideLeft' }}
                 />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '0.5rem', borderColor: '#ccc', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }} 
-                  formatter={tooltipFormatter}
-                  labelFormatter={(label) => `Round ${label}`}
+                  content={<CustomTooltip />}
+                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '0.5rem', borderColor: '#ccc', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
                 />
                 <Legend />
                 {Object.values(simulationResults).map(res => (
@@ -383,6 +471,7 @@ const StrategyAnalyzer = () => {
                     strokeWidth={2} 
                     dot={false} 
                     activeDot={{ r: 6, strokeWidth: 0 }}
+                    connectNulls={true} // Ensure lines don't break on null values
                   />
                 ))}
               </LineChart>

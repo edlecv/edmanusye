@@ -203,7 +203,7 @@ const ResultsGrid = () => {
                         {cellStrategies.length > 0 ? (
                           <div className="space-y-1">
                             {cellStrategies.map((strategy, index) => (
-                              <div key={index} className={`p-1.5 rounded border ${getStrategyClass(strategy.note)} bg-white dark:bg-gray-800 shadow-sm`}>
+                              <div key={index} className={`p-1.5 rounded border ${getStrategyClass(strategy.note)} bg-white dark:bg-gray-800 shadow-sm strategy-card`}>
                                 <strong className="block font-bold text-xs sm:text-sm mb-0.5 text-gray-900 dark:text-gray-50">{formatStrategyName(strategy.strategy_type)}</strong>
                                 <span className="block text-xxs sm:text-xs text-gray-700 dark:text-gray-300">Calmar (P/EMDD): {strategy.calmar_ratio_pemdd}</span>
                                 <span className="block text-xxs sm:text-xs text-gray-700 dark:text-gray-300">Ruin: {(strategy.probability_of_ruin * 100).toFixed(2)}%</span>
@@ -212,7 +212,7 @@ const ResultsGrid = () => {
                             ))}
                           </div>
                         ) : (
-                          <span className="text-gray-400 dark:text-gray-500 p-2 block text-center">-</span>
+                          <span className="text-gray-400 dark:text-gray-500 text-xs">No data</span>
                         )}
                       </td>
                     );
@@ -222,33 +222,9 @@ const ResultsGrid = () => {
             </tbody>
           </table>
         </div>
-        
-        <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800/60 rounded-lg shadow">
-            <h4 className="text-md font-semibold mb-2 text-gray-700 dark:text-gray-200">Strategy Highlighting Legend:</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                <div className="flex items-center p-2 rounded-md bg-gray-100 dark:bg-gray-700 border border-green-500 dark:border-green-400 ring-2 ring-green-500 dark:ring-green-400">
-                    <span className="w-4 h-4 mr-2 rounded-full flex-shrink-0 bg-green-500"></span>
-                    <span className="text-gray-800 dark:text-gray-200">Optimal (Ruin ≤1%)</span>
-                </div>
-                <div className="flex items-center p-2 rounded-md bg-gray-100 dark:bg-gray-700 border border-yellow-500 dark:border-yellow-400">
-                    <span className="w-4 h-4 mr-2 rounded-full flex-shrink-0 bg-yellow-500"></span>
-                    <span className="text-gray-800 dark:text-gray-200">Good Compromise (Ruin ≤5%)</span>
-                </div>
-                <div className="flex items-center p-2 rounded-md bg-gray-100 dark:bg-gray-700 border border-orange-500 dark:border-orange-400">
-                    <span className="w-4 h-4 mr-2 rounded-full flex-shrink-0 bg-orange-500"></span>
-                    <span className="text-gray-800 dark:text-gray-200">Notable Risk</span>
-                </div>
-                <div className="flex items-center p-2 rounded-md bg-gray-100 dark:bg-gray-700 border border-red-500 dark:border-red-400">
-                    <span className="w-4 h-4 mr-2 rounded-full flex-shrink-0 bg-red-500"></span>
-                    <span className="text-gray-800 dark:text-gray-200">Very Risky</span>
-                </div>
-            </div>
-        </div>
-
       </CardContent>
     </Card>
   );
 };
 
 export default ResultsGrid;
-
