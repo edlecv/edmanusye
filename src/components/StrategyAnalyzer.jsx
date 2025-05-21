@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import StrategyWrapper from "./StrategyWrapper";
 import "../components/animations.css";
 
 const StrategyAnalyzer = () => {
@@ -250,8 +251,8 @@ const StrategyAnalyzer = () => {
       const sortedPayload = [...payload].sort((a, b) => b.value - a.value);
       
       return (
-        <div className="custom-tooltip bg-white p-3 border border-gray-200 shadow-lg rounded-md">
-          <p className="font-medium text-gray-700 mb-2">Round {label}</p>
+        <div className="custom-tooltip bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md">
+          <p className="font-medium text-gray-700 dark:text-gray-200 mb-2">Round {label}</p>
           {sortedPayload.map((entry, index) => {
             // Find the strategy info to get the proper color
             const strategyKey = entry.dataKey;
@@ -259,7 +260,7 @@ const StrategyAnalyzer = () => {
             
             return (
               <p key={`item-${index}`} style={{ color: strategy.color }} className="text-sm">
-                : ${formatNumber(entry.value)}
+                {strategy.name}: ${formatNumber(entry.value)}
               </p>
             );
           })}
@@ -278,12 +279,12 @@ const StrategyAnalyzer = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 className="text-2xl font-bold mb-6">Strategy Simulator Configuration</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <h2 className="text-2xl font-bold mb-6 dark:text-white">Strategy Simulator Configuration</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Initial Balance</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Initial Balance</label>
             <Input
               type="number"
               name="initialBalance"
@@ -295,7 +296,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Win Rate (0-1)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Win Rate (0-1)</label>
             <Input
               type="number"
               name="winRate"
@@ -309,7 +310,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Risk Ratio (Reward:Risk)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Risk Ratio (Reward:Risk)</label>
             <Input
               type="number"
               name="riskRatio"
@@ -322,7 +323,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Simulation Rounds</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Simulation Rounds</label>
             <Input
               type="number"
               name="rounds"
@@ -335,7 +336,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Base Bet Size</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Base Bet Size</label>
             <Input
               type="number"
               name="baseBet"
@@ -347,7 +348,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Raw Strategy Bet Size</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Raw Strategy Bet Size</label>
             <Input
               type="number"
               name="rawBaseBet"
@@ -359,7 +360,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Max Bet (% of Balance)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Max Bet (% of Balance)</label>
             <Input
               type="number"
               name="maxBetPercent"
@@ -372,7 +373,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Max Bet Size</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Max Bet Size</label>
             <Input
               type="number"
               name="maxBetSize"
@@ -384,7 +385,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Consecutive Losses for Smart Double</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Consecutive Losses for Smart Double</label>
             <Input
               type="number"
               name="consecutiveLossesForDouble"
@@ -396,7 +397,7 @@ const StrategyAnalyzer = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Consecutive Wins for Anti-Smart Double</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Consecutive Wins for Anti-Smart Double</label>
             <Input
               type="number"
               name="consecutiveWinsForDouble"
@@ -409,12 +410,12 @@ const StrategyAnalyzer = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-          <div className="text-sm">
+          <div className="text-sm dark:text-gray-200">
             <span className="font-medium">Expected Value per Bet: </span>
-            <span className={expectancy > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+            <span className={expectancy > 0 ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-red-600 dark:text-red-400 font-semibold'}>
               {expectancy > 0 ? '+' : ''}{expectancy.toFixed(4)}
             </span>
-            <span className="ml-2 text-gray-500">
+            <span className="ml-2 text-gray-500 dark:text-gray-400">
               ({expectancy > 0 ? 'Positive EV' : 'Negative EV'})
             </span>
           </div>
@@ -423,7 +424,7 @@ const StrategyAnalyzer = () => {
             <Button onClick={runSimulation} className="bg-blue-600 hover:bg-blue-700">
               Run Simulation
             </Button>
-            <Button onClick={resetSimulation} variant="outline" className="border-gray-300">
+            <Button onClick={resetSimulation} variant="outline" className="border-gray-300 dark:border-gray-600 dark:text-gray-200">
               Reset
             </Button>
           </div>
@@ -431,8 +432,8 @@ const StrategyAnalyzer = () => {
       </div>
       
       {simulationResults && (
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold mb-6">Simulation Results</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-6 dark:text-white">Simulation Results</h2>
           
           <div className="flex flex-wrap gap-2 mb-6">
             {Object.values(simulationResults).map(res => (
@@ -442,18 +443,24 @@ const StrategyAnalyzer = () => {
             ))}
           </div>
           
-          <div className="h-[400px] mb-8 bg-white p-4 rounded-md shadow-md border border-gray-200">
+          <div className="h-[400px] mb-8 bg-white dark:bg-gray-800 p-4 rounded-md shadow-md border border-gray-200 dark:border-gray-700">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} ref={chartRef}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke="#e0e0e0" 
+                  className="dark:opacity-30" // Atténuer la grille en mode sombre
+                />
                 <XAxis 
                   dataKey="round" 
                   stroke="#666" 
+                  className="dark:text-gray-400"
                   label={{ value: 'Round', position: 'insideBottomRight', offset: -5 }}
                 />
                 <YAxis 
                   tickFormatter={yAxisTickFormatter} 
                   stroke="#666"
+                  className="dark:text-gray-400"
                   label={{ value: 'Balance ($)', angle: -90, position: 'insideLeft' }}
                 />
                 <Tooltip 
@@ -468,61 +475,65 @@ const StrategyAnalyzer = () => {
                     dataKey={res.type} 
                     name={res.name} 
                     stroke={res.color} 
-                    strokeWidth={2} 
-                    dot={false} 
-                    activeDot={{ r: 6, strokeWidth: 0 }}
-                    connectNulls={true} // Ensure lines don't break on null values
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 6 }}
                   />
                 ))}
               </LineChart>
             </ResponsiveContainer>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.values(simulationResults).sort((a,b) => (b.finalBalance / (b.maxDrawdown || 1)) - (a.finalBalance / (a.maxDrawdown || 1))).map(res => (
-              <div key={res.name} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 strategy-card">
-                <div className="px-4 py-3 border-b border-gray-200" style={{ backgroundColor: `${res.color}15` }}>
-                  <h4 className="text-lg font-semibold" style={{ color: res.color }}>{res.name}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{strategyDescriptions[res.type]}</p>
-                </div>
-                <div className="p-4">
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                    <div>
-                      <p className="text-gray-500">Final Balance:</p>
-                      <p className={`font-semibold ${res.finalBalance > config.initialBalance ? 'text-green-600' : 'text-red-600'}`}>
-                        {'$' + formatNumber(res.finalBalance)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Total Return:</p>
-                      <p className={`font-semibold ${res.finalBalance > config.initialBalance ? 'text-green-600' : 'text-red-600'}`}>
-                        {((res.finalBalance / config.initialBalance - 1) * 100).toFixed(2)}%
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Max Drawdown:</p>
-                      <p className="font-semibold text-red-500">{'$' + formatNumber(res.maxDrawdown)}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Return/Drawdown:</p>
-                      <p className="font-semibold">{formatNumber(res.finalBalance / (res.maxDrawdown || 1))}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Trades:</p>
-                      <p className="font-semibold">{res.tradesCount} (W: {res.wins}, L: {res.losses})</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Win Rate (Actual):</p>
-                      <p className="font-semibold">{res.tradesCount > 0 ? formatNumber((res.wins / res.tradesCount) * 100, 1) + '%' : 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Largest Bet:</p>
-                      <p className="font-semibold">{'$' + formatNumber(res.maxBetUsed)}</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Object.values(simulationResults)
+              .sort((a, b) => {
+                // Sort by Return/Drawdown ratio (Calmar ratio) in descending order
+                const aRatio = a.finalBalance / (a.maxDrawdown || 1);
+                const bRatio = b.finalBalance / (b.maxDrawdown || 1);
+                return bRatio - aRatio;
+              })
+              .map(res => (
+                <StrategyWrapper 
+                  key={res.name} 
+                  strategyColor={res.color} 
+                  strategyType={res.type}
+                  description={strategyDescriptions[res.type]}
+                >
+                  <div className="p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Final Balance:</p>
+                        <p className="font-semibold text-green-600 dark:text-green-400">{'$' + formatNumber(res.finalBalance)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Total Return:</p>
+                        <p className="font-semibold text-green-600 dark:text-green-400">{formatNumber((res.finalBalance / initialConfig.initialBalance) * 100, 2) + '%'}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Max Drawdown:</p>
+                        <p className="font-semibold text-red-500 dark:text-red-400">{'$' + formatNumber(res.maxDrawdown)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Return/Drawdown:</p>
+                        <p className="font-semibold dark:text-white">{formatNumber(res.finalBalance / (res.maxDrawdown || 1))}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Trades:</p>
+                        <p className="font-semibold dark:text-white">{res.tradesCount} (W: {res.wins}, L: {res.losses})</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Win Rate (Actual):</p>
+                        <p className="font-semibold dark:text-white">{res.tradesCount > 0 ? formatNumber((res.wins / res.tradesCount) * 100, 1) + '%' : 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Largest Bet:</p>
+                        <p className="font-semibold dark:text-white">{'$' + formatNumber(res.maxBetUsed)}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                </StrategyWrapper>
+              ))
+            }
           </div>
         </div>
       )}
