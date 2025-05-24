@@ -36,7 +36,7 @@ const ResultsPage = () => (
   </>
 );
 
-// Navigation component with conditional admin access
+// Composant de navigation avec accès conditionnel à la page admin
 const Navigation = () => {
   const { isAdmin, openLoginModal, logout } = useAuth();
 
@@ -50,7 +50,7 @@ const Navigation = () => {
               onClick={logout}
               className="text-sm px-3 py-1 bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors"
             >
-              Admin Logout
+              Déconnexion Admin
             </button>
           ) : (
             <button
@@ -116,18 +116,18 @@ const Navigation = () => {
   );
 };
 
-// Main application component
+// Composant principal de l'application
 const App = () => {
-  // Initialize theme on application load
+  // Initialiser le thème au chargement de l'application
   useEffect(() => {
-    // Check if a theme is already registered in localStorage
+    // Vérifier si un thème est déjà enregistré dans localStorage
     const savedTheme = localStorage.getItem('theme');
-    // If the theme is 'light', apply light theme, otherwise use dark theme by default
+    // Si le thème est 'light', appliquer le thème clair, sinon utiliser le thème sombre par défaut
     if (savedTheme === 'light') {
       document.documentElement.classList.remove('dark');
     } else {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark'); // Save dark theme as default
+      localStorage.setItem('theme', 'dark'); // Sauvegarder le thème sombre comme défaut
     }
   }, []);
 
