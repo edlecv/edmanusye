@@ -42,31 +42,19 @@ const GridPage = () => (
   </>
 );
 
-// Optimized Performance Grid Page
+// Enhanced Performance Grid Page
 const OptimizedGridPage = () => (
   <>
     <header className="mb-6">
-      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Optimized Performance Grid</h1>
+      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Enhanced Performance Grid</h1>
       <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
-        Pre-computed simulation results for efficient strategy analysis with caching
+        Generate robust batches of thousands of simulations with data upload capabilities
       </p>
     </header>
     <PerformanceGridOptimized />
   </>
 );
 
-// Monte Carlo Simulation Engine Page
-const MonteCarloPage = () => (
-  <>
-    <header className="mb-6">
-      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Monte Carlo Simulation Engine</h1>
-      <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
-        Run multiple batches of 5000+ simulations efficiently with minimal resource usage
-      </p>
-    </header>
-    <OptimizedSimulationEngine />
-  </>
-);
 
 // Analysis Report Page
 const ResultsPage = () => (
@@ -178,18 +166,7 @@ const Navigation = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span className="text-xs">Optimized Grid</span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/monte-carlo"
-            className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-teal-50 dark:hover:bg-teal-900/30 text-teal-600 dark:text-teal-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-teal-100 dark:border-teal-900/50 hover:border-teal-300 dark:hover:border-teal-700"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 00-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <span className="text-xs">Monte Carlo</span>
+            <span className="text-xs">Enhanced Grid</span>
           </Link>
         </li>
         <li>
@@ -280,7 +257,6 @@ const App = () => {
             <Route path="/" element={<SimulatorPage />} />
             <Route path="/analyzer" element={<GridPage />} />
             <Route path="/optimized-grid" element={<OptimizedGridPage />} />
-            <Route path="/monte-carlo" element={<MonteCarloPage />} />
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/probabilistic-edge" element={<ProbabilisticEdgePage />} />
             <Route path="/enhanced-calculator" element={<EnhancedCalculatorPage />} />

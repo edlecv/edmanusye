@@ -49,18 +49,24 @@ class SimulationDataGenerator {
             initialBalance,
             baseBet,
             rounds,
-            maxBetPercent: 10,
-            maxBetSize: 1000,
-            consecutiveLossesForDouble: 3,
-            consecutiveWinsForDouble: 3
+            maxBetPercent: 100, // Allow up to 100% of balance
+            maxBetSize: initialBalance, // Max bet is initial balance
+            consecutiveLossesForDouble: 1, // Standard settings
+            consecutiveWinsForDouble: 1
           };
 
-          // Run optimized simulations
-          const results = await this.runOptimizedBatch(config, simulationsPerCell);
+          // Run optimized simulations with configurable batch size
+          const batchSizeToUse = options.batchSize || 1000;
+          const results = await this.runOptimizedBatch(config, simulationsPerCell, batchSizeToUse);
           const statistics = this.calculateComprehensiveStats(results);
           
-          // Store compressed results
-          grid.data[winRate][riskRatio][strategy] = this.compressResults(statistics);
+          // Store compressed results with expected profit calculation
+          const enhancedStats = {
+            ...statistics,
+            expectedProfit: statistics.mean - initialBalance
+          };
+          
+          grid.data[winRate][riskRatio][strategy] = this.compressResults(enhancedStats);
           
           completedCells++;
           if (onProgress) {
@@ -78,13 +84,13 @@ class SimulationDataGenerator {
     return grid;
   }
 
-  // Optimized batch simulation runner
-  async runOptimizedBatch(config, numSimulations) {
+  // Enhanced batch simulation runner with configurable batch sizes
+  async runOptimizedBatch(config, numSimulations, batchSize = 1000) {
     return new Promise((resolve) => {
       const results = [];
       
       // Use requestIdleCallback for non-blocking execution
-      const runBatch = (startIndex, batchSize = 100) => {
+      const runBatch = (startIndex) => {
         const endIndex = Math.min(startIndex + batchSize, numSimulations);
         
         for (let i = startIndex; i < endIndex; i++) {
@@ -95,9 +101,9 @@ class SimulationDataGenerator {
         if (endIndex < numSimulations) {
           // Continue with next batch
           if (typeof requestIdleCallback !== 'undefined') {
-            requestIdleCallback(() => runBatch(endIndex, batchSize));
+            requestIdleCallback(() => runBatch(endIndex));
           } else {
-            setTimeout(() => runBatch(endIndex, batchSize), 0);
+            setTimeout(() => runBatch(endIndex), 0);
           }
         } else {
           resolve(results);
@@ -157,10 +163,14 @@ class SimulationDataGenerator {
       if (isWin) {
         balance += actualBet * riskRatio;
         wins++;
-        this.updateBetForWin(strategyType, currentBetValue, baseBet, consecutiveWinLoss, consecutiveWinsForDouble);
+        const updateResult = this.updateBetForWin(strategyType, currentBetValue, baseBet, consecutiveWinLoss, consecutiveWinsForDouble);
+        currentBetValue = updateResult.currentBetValue;
+        consecutiveWinLoss = updateResult.consecutiveWinLoss;
       } else {
         balance -= actualBet;
-        this.updateBetForLoss(strategyType, currentBetValue, baseBet, consecutiveWinLoss, consecutiveLossesForDouble);
+        const updateResult = this.updateBetForLoss(strategyType, currentBetValue, baseBet, consecutiveWinLoss, consecutiveLossesForDouble);
+        currentBetValue = updateResult.currentBetValue;
+        consecutiveWinLoss = updateResult.consecutiveWinLoss;
       }
       
       // Efficient drawdown tracking
@@ -188,49 +198,64 @@ class SimulationDataGenerator {
     };
   }
 
-  // Strategy-specific bet update logic (optimized)
+  // Strategy-specific bet update logic (optimized and fixed)
   updateBetForWin(strategyType, currentBetValue, baseBet, consecutiveWinLoss, consecutiveWinsForDouble) {
+    let newBetValue = currentBetValue;
+    let newConsecutive = consecutiveWinLoss;
+    
     switch (strategyType) {
       case 'martingale':
       case 'linear':
       case 'smartDouble':
-        consecutiveWinLoss = 0;
-        currentBetValue = baseBet;
+        newConsecutive = 0;
+        newBetValue = baseBet;
         break;
       case 'antiMartingale':
-        currentBetValue *= 2;
+        newConsecutive++;
+        if (newConsecutive <= 3) { // Limit to 3 consecutive wins
+          newBetValue *= 2;
+        } else {
+          newBetValue = baseBet;
+          newConsecutive = 0;
+        }
         break;
       case 'antiLinear':
-        currentBetValue += baseBet;
+        newConsecutive++;
+        newBetValue += baseBet;
         break;
       case 'antiSmartDouble':
-        consecutiveWinLoss++;
-        currentBetValue = consecutiveWinLoss >= consecutiveWinsForDouble ? baseBet * 2 : baseBet;
+        newConsecutive++;
+        newBetValue = baseBet + (newConsecutive * baseBet);
         break;
     }
-    return { currentBetValue, consecutiveWinLoss };
+    return { currentBetValue: newBetValue, consecutiveWinLoss: newConsecutive };
   }
 
   updateBetForLoss(strategyType, currentBetValue, baseBet, consecutiveWinLoss, consecutiveLossesForDouble) {
+    let newBetValue = currentBetValue;
+    let newConsecutive = consecutiveWinLoss;
+    
     switch (strategyType) {
       case 'antiMartingale':
       case 'antiLinear':
       case 'antiSmartDouble':
-        consecutiveWinLoss = 0;
-        currentBetValue = baseBet;
+        newConsecutive = 0;
+        newBetValue = baseBet;
         break;
       case 'martingale':
-        currentBetValue *= 2;
+        newConsecutive++;
+        newBetValue *= 2;
         break;
       case 'linear':
-        currentBetValue += baseBet;
+        newConsecutive++;
+        newBetValue += baseBet;
         break;
       case 'smartDouble':
-        consecutiveWinLoss++;
-        currentBetValue = consecutiveWinLoss >= consecutiveLossesForDouble ? baseBet * 2 : baseBet;
+        newConsecutive++;
+        newBetValue = baseBet + (newConsecutive * baseBet);
         break;
     }
-    return { currentBetValue, consecutiveWinLoss };
+    return { currentBetValue: newBetValue, consecutiveWinLoss: newConsecutive };
   }
 
   // Calculate comprehensive statistics
