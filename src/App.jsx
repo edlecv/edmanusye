@@ -2,7 +2,11 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import StrategyAnalyzer from './components/StrategyAnalyzer';
 import ResultsGrid from './components/ResultsGrid';
+import DynamicResultsGrid from './components/DynamicResultsGrid';
 import StrategyResults from './components/StrategyResults';
+import DynamicAnalysisReport from './components/DynamicAnalysisReport';
+import PublicStatistics from './components/PublicStatistics';
+import AdminAnalysisReport from './components/AdminAnalysisReport';
 import ProbabilisticEdgeFormula from './components/ProbabilisticEdgeFormula';
 import EnhancedStrategyCalculator from './components/EnhancedStrategyCalculator';
 import PracticalImplementationGuide from './components/PracticalImplementationGuide';
@@ -29,16 +33,29 @@ const SimulatorPage = () => (
   </>
 );
 
-// Performance Grid Page
+// Static Performance Grid Page (Admin Only)
 const GridPage = () => (
   <>
     <header className="mb-6">
-      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Strategy Performance Matrix</h1>
+      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Static Strategy Performance Matrix</h1>
       <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
-        Comprehensive analysis of strategy performance across different win rates and risk ratios
+        Reference data from original simulations (Admin View Only)
       </p>
     </header>
     <ResultsGrid />
+  </>
+);
+
+// Dynamic Results Grid Page (Public)
+const DynamicGridPage = () => (
+  <>
+    <header className="mb-6">
+      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Dynamic Strategy Results</h1>
+      <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
+        Real-time strategy performance data from Enhanced Grid simulations
+      </p>
+    </header>
+    <DynamicResultsGrid />
   </>
 );
 
@@ -55,17 +72,36 @@ const OptimizedGridPage = () => (
   </>
 );
 
-
-// Analysis Report Page
-const ResultsPage = () => (
+// Public Statistics Page
+const PublicStatisticsPage = () => (
   <>
     <header className="mb-6">
-      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Detailed Strategy Analysis</h1>
+      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Interactive Strategy Statistics</h1>
       <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
-        In-depth analysis and visualization of strategy performance metrics
+        Comprehensive statistical analysis with interactive heatmaps and real-time data visualization
       </p>
     </header>
-    <StrategyResults />
+    <PublicStatistics />
+  </>
+);
+
+// Public Dynamic Analysis Report Page
+const ResultsPage = () => (
+  <>
+    <DynamicAnalysisReport />
+  </>
+);
+
+// Admin Analysis Report Page (Secure)
+const AdminAnalysisReportPage = () => (
+  <>
+    <header className="mb-6">
+      <h1 className="text-3xl font-bold text-center text-primary dark:text-white">Secure Analysis Dashboard</h1>
+      <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
+        Administrative access to strategy analysis data with upload and export capabilities
+      </p>
+    </header>
+    <AdminAnalysisReport />
   </>
 );
 
@@ -149,13 +185,13 @@ const Navigation = () => {
         </li>
         <li>
           <Link
-            to="/analyzer"
+            to="/dynamic-results"
             className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-green-900/30 text-green-600 dark:text-green-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-green-100 dark:border-green-900/50 hover:border-green-300 dark:hover:border-green-700"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <span className="text-xs">Performance Grid</span>
+            <span className="text-xs">Strategy Results</span>
           </Link>
         </li>
         <li>
@@ -180,39 +216,71 @@ const Navigation = () => {
             <span className="text-xs">Analysis Report</span>
           </Link>
         </li>
-        <li>
-          <Link
-            to="/probabilistic-edge"
-            className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 text-cyan-600 dark:text-cyan-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-cyan-100 dark:border-cyan-900/50 hover:border-cyan-300 dark:hover:border-cyan-700"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span className="text-xs">Profit Optimizer</span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/enhanced-calculator"
-            className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            <span className="text-xs">Smart Calculator</span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/implementation-guide"
-            className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 text-yellow-600 dark:text-yellow-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-yellow-100 dark:border-yellow-900/50 hover:border-yellow-300 dark:hover:border-yellow-700"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <span className="text-xs">How-To Guide</span>
-          </Link>
-        </li>
+        {isAdmin && (
+          <li>
+            <Link
+              to="/admin-analysis"
+              className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-red-100 dark:border-red-900/50 hover:border-red-300 dark:hover:border-red-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span className="text-xs">Secure Analysis</span>
+            </Link>
+          </li>
+        )}
+        {isAdmin && (
+          <li>
+            <Link
+              to="/analyzer"
+              className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-slate-900/30 text-slate-600 dark:text-slate-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-slate-100 dark:border-slate-900/50 hover:border-slate-300 dark:hover:border-slate-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <span className="text-xs">Static Grid</span>
+            </Link>
+          </li>
+        )}
+        {isAdmin && (
+          <li>
+            <Link
+              to="/probabilistic-edge"
+              className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 text-cyan-600 dark:text-cyan-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-cyan-100 dark:border-cyan-900/50 hover:border-cyan-300 dark:hover:border-cyan-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span className="text-xs">Profit Optimizer</span>
+            </Link>
+          </li>
+        )}
+        {isAdmin && (
+          <li>
+            <Link
+              to="/enhanced-calculator"
+              className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <span className="text-xs">Smart Calculator</span>
+            </Link>
+          </li>
+        )}
+        {isAdmin && (
+          <li>
+            <Link
+              to="/implementation-guide"
+              className="nav-button flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 text-yellow-600 dark:text-yellow-300 font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-yellow-100 dark:border-yellow-900/50 hover:border-yellow-300 dark:hover:border-yellow-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              <span className="text-xs">How-To Guide</span>
+            </Link>
+          </li>
+        )}
         {isAdmin && (
           <li>
             <Link
@@ -255,12 +323,49 @@ const App = () => {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<SimulatorPage />} />
-            <Route path="/analyzer" element={<GridPage />} />
+            <Route path="/dynamic-results" element={<DynamicGridPage />} />
             <Route path="/optimized-grid" element={<OptimizedGridPage />} />
             <Route path="/results" element={<ResultsPage />} />
-            <Route path="/probabilistic-edge" element={<ProbabilisticEdgePage />} />
-            <Route path="/enhanced-calculator" element={<EnhancedCalculatorPage />} />
-            <Route path="/implementation-guide" element={<ImplementationGuidePage />} />
+            <Route
+              path="/admin-analysis"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminAnalysisReportPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/analyzer"
+              element={
+                <ProtectedAdminRoute>
+                  <GridPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/probabilistic-edge"
+              element={
+                <ProtectedAdminRoute>
+                  <ProbabilisticEdgePage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/enhanced-calculator"
+              element={
+                <ProtectedAdminRoute>
+                  <EnhancedCalculatorPage />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/implementation-guide"
+              element={
+                <ProtectedAdminRoute>
+                  <ImplementationGuidePage />
+                </ProtectedAdminRoute>
+              }
+            />
             <Route
               path="/admin"
               element={

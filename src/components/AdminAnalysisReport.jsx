@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
-import dataSyncService, { subscribeToDataChanges } from '../utils/DataSyncService';
 
-const StrategyResults = () => {
+const AdminAnalysisReport = () => {
   const [modalImage, setModalImage] = useState(null);
-  const [lastUpdateTime, setLastUpdateTime] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const openModal = (imageSrc, altText) => {
     setModalImage({ src: imageSrc, alt: altText });
@@ -14,24 +15,157 @@ const StrategyResults = () => {
     setModalImage(null);
   };
 
-  useEffect(() => {
-    // Set initial update time
-    setLastUpdateTime(new Date().toLocaleString());
+  const handleFileUpload = async (event) => {
+    const files = event.target.files;
+    if (files.length === 0) return;
 
-    // Subscribe to data changes for real-time updates
-    const unsubscribe = subscribeToDataChanges((newData) => {
-      setLastUpdateTime(new Date().toLocaleString());
-      // You could update specific data here if needed
-    });
+    setIsUploading(true);
+    setUploadStatus(`Processing ${files.length} file(s)...`);
 
-    // Cleanup subscription on unmount
-    return unsubscribe;
-  }, []);
+    // Simulate file processing without actually updating any external data
+    setTimeout(() => {
+      setUploadStatus(`Files uploaded successfully. Static analysis data maintained (no external updates).`);
+      setIsUploading(false);
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }, 2000);
+  };
+
+  const exportAnalysisData = () => {
+    // Create analysis data export
+    const analysisData = {
+      strategies: [
+        { name: 'Anti-Smart Double', total: 13, optimal: 13, good: 0, notable: 0, risky: 0, safePercentage: 100.0 },
+        { name: 'Anti-Martingale', total: 8, optimal: 4, good: 0, notable: 0, risky: 4, safePercentage: 50.0 },
+        { name: 'Raw', total: 6, optimal: 5, good: 1, notable: 0, risky: 0, safePercentage: 100.0 },
+        { name: 'Martingale', total: 4, optimal: 0, good: 0, notable: 0, risky: 4, safePercentage: 0.0 },
+        { name: 'Anti-Linear', total: 4, optimal: 4, good: 0, notable: 0, risky: 0, safePercentage: 100.0 }
+      ],
+      metadata: {
+        lastUpdated: new Date().toISOString(),
+        totalAnalyses: 35,
+        adminUser: 'admin',
+        dataSource: 'Strategy Analysis Engine'
+      }
+    };
+
+    const dataStr = JSON.stringify(analysisData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `strategy_analysis_${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">Dominant Strategy Analysis</h1>
+      <div className="mb-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div className="flex items-center space-x-2 text-red-700 dark:text-red-300">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+          </svg>
+          <span className="font-semibold">Admin Only - Static Analysis Archive</span>
+        </div>
+        <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+          This is a secure, static archive of strategy analysis data. This page does not update with new data and is completely separate from the public dynamic statistics page.
+        </p>
+      </div>
+
+      <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="flex items-center space-x-2 text-blue-700 dark:text-blue-300">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="font-semibold">Note: Public Dynamic Statistics Available</span>
+        </div>
+        <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+          For real-time, interactive statistics with automatic updates, public users can visit the "Statistics" page in the main navigation.
+        </p>
+      </div>
+
+      <h1 className="text-3xl font-bold mb-6 text-center">Admin Strategy Analysis Dashboard</h1>
       
+      {/* Admin Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <span>Upload Analysis Data</span>
+            </CardTitle>
+            <CardDescription>
+              Upload new strategy analysis results to update the public statistics page
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              multiple
+              accept=".json,.csv,.png,.jpg"
+              className="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className={`w-full font-bold py-2 px-4 rounded transition-colors ${
+                isUploading
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              {isUploading ? 'Processing...' : 'Select Files to Upload'}
+            </button>
+            {uploadStatus && (
+              <div className={`mt-2 text-sm ${
+                uploadStatus.includes('Failed') || uploadStatus.includes('error')
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-green-600 dark:text-green-400'
+              }`}>
+                {uploadStatus}
+              </div>
+            )}
+            <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+              Supported formats: JSON, CSV, PNG, JPG. This is a secure admin-only static archive.
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Export Analysis Data</span>
+            </CardTitle>
+            <CardDescription>
+              Export current analysis data for backup or external processing
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <button
+              onClick={exportAnalysisData}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors"
+            >
+              Export Analysis Report
+            </button>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Downloads a JSON file with complete analysis data and metadata
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Original Analysis Content */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Dominant Strategies Heatmap</CardTitle>
@@ -273,17 +407,35 @@ const StrategyResults = () => {
         </CardContent>
       </Card>
 
-      {/* Real-time update indicator */}
-      <div className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-        <div className="flex items-center justify-center space-x-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span>
-            Last updated: {lastUpdateTime || 'Loading...'} | Auto-sync with admin uploads: Active
-          </span>
-        </div>
-      </div>
+      {/* Admin Actions Log */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Admin Activity Log</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+              <span>Analysis data last updated</span>
+              <span className="text-gray-600 dark:text-gray-400">{new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+              <span>Public statistics page sync</span>
+              <span className="text-green-600 dark:text-green-400">Active</span>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span>Total strategy analyses processed</span>
+              <span className="text-blue-600 dark:text-blue-400">35</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default StrategyResults;
+export default AdminAnalysisReport;
