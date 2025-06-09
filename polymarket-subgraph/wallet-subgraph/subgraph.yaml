@@ -1,0 +1,69 @@
+specVersion: 0.0.5
+description: wallet-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: RelayHub
+    network: matic
+    source:
+      address: '0xD216153c06E857cD7f72665E0aF1d7D82172F494'
+      abi: RelayHub
+      startBlock: 3764531
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Wallet
+      abis:
+        - name: RelayHub
+          file: ../abis/RelayHub.json
+      eventHandlers:
+        - event: TransactionRelayed(indexed address,indexed address,indexed address,bytes4,uint8,uint256)
+          handler: handleTransactionRelayed
+      file: ./src/RelayHub.ts
+
+  - kind: ethereum
+    name: SafeProxyFactory
+    network: matic 
+    source:
+      address: '0xaacFeEa03eb1561C4e67d661e40682Bd20E3541b'
+      abi: SafeProxyFactory
+      startBlock: 19426226 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Wallet
+      abis:
+        - name: SafeProxyFactory
+          file: ../abis/SafeProxyFactory.json
+      eventHandlers:
+        - event: ProxyCreation(address,address)
+          handler: handleProxyCreation
+      file: ./src/SafeProxyFactory.ts
+
+
+  - kind: ethereum
+    name: USDC
+    network: matic
+    source:
+      address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
+      abi: ERC20
+      startBlock: 5013591
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Wallet
+        - GlobalUSDCBalance
+      abis:
+        - name: ERC20
+          file: ../abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleUSDCTransfer
+      file: ./src/USDC.ts
