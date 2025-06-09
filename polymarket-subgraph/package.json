@@ -1,0 +1,84 @@
+{
+  "name": "polymarket-subgraph-common",
+  "version": "1.0.0",
+  "description": "Common utils for polymarket subgraphs",
+  "scripts": {
+    "prepare:mainnet": "NETWORK_NAME=mainnet ts-node ./templatify.ts && yarn codegen",
+    "prepare:matic": "NETWORK_NAME=matic ts-node ./templatify.ts && yarn codegen",
+    "prepare:mumbai": "NETWORK_NAME=mumbai ts-node ./templatify.ts && yarn codegen",
+    "publish-graph:matic": "yarn prepare:matic && yarn deploy:matic",
+    "publish-graph:mumbai": "yarn prepare:mumbai && yarn deploy:mumbai",
+    "test": "graph test --docker",
+    "templatify:matic": "ts-node ./templatify.ts matic",
+    "activity:codegen": "yarn graph codegen ./activity-subgraph/subgraph.yaml --output-dir ./activity-subgraph/src/types",
+    "activity:build": "yarn graph build ./activity-subgraph/subgraph.yaml",
+    "activity:create-local": "graph create --node http://localhost:8020/ activity-subgraph",
+    "activity:deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 activity-subgraph ./activity-subgraph/subgraph.yaml",
+    "pnl:codegen": "yarn graph codegen ./pnl-subgraph/subgraph.yaml --output-dir ./pnl-subgraph/src/types",
+    "pnl:build": "yarn graph build ./pnl-subgraph/subgraph.yaml",
+    "pnl:create-local": "graph create --node http://localhost:8020/ pnl-subgraph",
+    "pnl:deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 pnl-subgraph ./pnl-subgraph/subgraph.yaml",
+    "oi:codegen": "yarn graph codegen ./oi-subgraph/subgraph.yaml --output-dir ./oi-subgraph/src/types",
+    "oi:build": "yarn graph build ./oi-subgraph/subgraph.yaml",
+    "oi:create-local": "graph create --node http://localhost:8020/ oi-subgraph",
+    "oi:deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 oi-subgraph ./oi-subgraph/subgraph.yaml",
+    "oi:remove-local": "graph remove --node http://localhost:8020/ oi-subgraph",
+    "fpmm:codegen": "yarn graph codegen ./fpmm-subgraph/subgraph.yaml --output-dir ./fpmm-subgraph/src/types",
+    "fpmm:build": "yarn graph build ./fpmm-subgraph/subgraph.yaml",
+    "fpmm:create-local": "graph create --node http://localhost:8020/ fpmm-subgraph",
+    "fpmm:deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 fpmm-subgraph ./fpmm-subgraph/subgraph.yaml",
+    "fpmm:remove-local": "graph remove --node http://localhost:8020/ fpmm-subgraph",
+    "orderbook:codegen": "yarn graph codegen ./orderbook-subgraph/subgraph.yaml --output-dir ./orderbook-subgraph/src/types",
+    "orderbook:build": "yarn graph build ./orderbook-subgraph/subgraph.yaml",
+    "orderbook:create-local": "graph create --node http://localhost:8020/ orderbook-subgraph",
+    "orderbook:deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 orderbook-subgraph ./orderbook-subgraph/subgraph.yaml",
+    "orderbook:remove-local": "graph remove --node http://localhost:8020/ orderbook-subgraph",
+    "oracle:codegen": "yarn graph codegen ./sports-oracle-subgraph/subgraph.yaml --output-dir ./sports-oracle-subgraph/src/types",
+    "oracle:build": "yarn graph build ./sports-oracle-subgraph/subgraph.yaml",
+    "oracle:create-local": "graph create --node http://localhost:8020/ sports-oracle-subgraph",
+    "oracle:deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 sports-oracle-subgraph ./sports-oracle-subgraph/subgraph.yaml",
+    "oracle:remove-local": "graph remove --node http://localhost:8020/ sports-oracle-subgraph",
+    "wallet:codegen": "yarn graph codegen ./wallet-subgraph/subgraph.yaml --output-dir ./wallet-subgraph/src/types",
+    "wallet:build": "yarn graph build ./wallet-subgraph/subgraph.yaml",
+    "wallet:create-local": "graph create --node http://localhost:8020/ wallet-subgraph",
+    "wallet:deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 wallet-subgraph ./wallet-subgraph/subgraph.yaml",
+    "wallet:remove-local": "graph remove --node http://localhost:8020/ wallet-subgraph"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Polymarket/polymarket-subgraph.git"
+  },
+  "contributors": [
+    {
+      "name": "Tom French",
+      "url": "https://github.com/tomafrench"
+    },
+    {
+      "name": "Gnosis",
+      "url": "https://gnosis.io"
+    }
+  ],
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Polymarket/polymarket-subgraph/issues"
+  },
+  "homepage": "https://github.com/Polymarket/polymarket-subgraph#readme",
+  "devDependencies": {
+    "@as-pect/cli": "^8.1.0",
+    "@goldskycom/cli": "^7.4.0",
+    "@graphprotocol/graph-cli": "^0.86.0",
+    "@graphprotocol/graph-ts": "^0.35.1",
+    "@types/fs-extra": "^9.0.13",
+    "@types/js-yaml": "^4.0.5",
+    "eslint": "^8.24.0",
+    "eslint-config-airbnb-typescript-prettier": "^5.0.0",
+    "fs-extra": "^10.1.0",
+    "handlebars": "^4.7.7",
+    "js-yaml": "^4.1.0",
+    "matchstick-as": "^0.6.0",
+    "path": "^0.12.7",
+    "prettier": "^2.7.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^3.9.7"
+  }
+}
